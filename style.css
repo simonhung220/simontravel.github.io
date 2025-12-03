@@ -1,70 +1,142 @@
-/* style.css */
+/* style.css - V4: Card View with Distance and Editable Notes */
 body {
     font-family: 'Helvetica Neue', Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f4f7f6; /* 輕微的灰色背景 */
+    background-color: #f0f2f5;
     color: #333;
     line-height: 1.6;
 }
 
 .container {
-    max-width: 800px; /* 限制內容寬度 */
+    max-width: 800px;
     margin: 0 auto;
-    padding: 20px;
-    background-color: #ffffff; /* 內容區塊白色背景 */
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 20px 10px;
+    background-color: #ffffff;
+    min-height: 100vh;
 }
 
 h1 {
     text-align: center;
-    color: #004d40; /* 深綠色標題 */
+    color: #004d40;
     margin-bottom: 5px;
-    border-bottom: 3px solid #009688; /* 綠色底線 */
     padding-bottom: 10px;
+    border-bottom: 3px solid #009688;
+}
+
+.description {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    margin-bottom: 20px;
 }
 
 h2 {
-    color: #00796b; /* 中等綠色標題 */
-    border-left: 5px solid #ffab40; /* 橙色裝飾線 */
+    color: #00796b;
+    border-left: 5px solid #ffab40;
     padding-left: 10px;
-    margin-top: 25px;
+    margin-top: 30px;
+    margin-bottom: 15px;
 }
 
-.day-plan {
-    background-color: #e0f2f1; /* 每日行程淺綠色背景 */
-    padding: 15px;
-    margin-bottom: 20px;
-    border-radius: 8px;
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.05);
+h3 {
+    color: #d84315;
+    margin: 0 0 8px 0;
+    font-size: 1.1em;
 }
 
-ul {
-    list-style: none;
-    padding: 0;
-}
-
-li {
+/* 小方格/卡片樣式 */
+.activity-card {
     background-color: #ffffff;
-    margin-bottom: 10px;
-    padding: 12px;
-    border-left: 4px solid #4db6ac; /* 內容區塊裝飾線 */
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0f2f1;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+/* [其他樣式保持不變...] */
+
+/* 行程距離樣式 */
+.distance {
+    text-align: center;
+    font-size: 0.9em;
+    color: #4CAF50;
+    margin: -5px 0 15px 0;
+    padding: 5px 10px;
+    background-color: #e8f5e9;
+    border-radius: 5px;
+    border: 1px dashed #A5D6A7;
+    font-weight: bold;
+}
+
+/* 備註方格 (使用 <details> 標籤) 樣式 */
+.notes-box {
+    margin-top: 15px;
+    border-top: 1px solid #eee;
+    padding-top: 10px;
+}
+
+.notes-box summary {
+    cursor: pointer;
+    font-weight: bold;
+    color: #3f51b5;
+    padding: 5px 0;
+    outline: none;
+    display: flex; /* 啟用 Flexbox 佈局，方便定位鉛筆 */
+    justify-content: space-between; /* 將內容和鉛筆推到兩邊 */
+}
+
+/* 鉛筆圖標樣式 */
+.edit-icon {
+    font-size: 1.2em;
+    cursor: pointer;
+    color: #ffc107; /* 黃色或金色，表示編輯 */
+    margin-left: 10px;
+}
+
+.notes-box ul {
+    list-style: disc;
+    padding-left: 20px;
+    margin-top: 10px;
+    background-color: #f7f9ff;
+    padding: 10px;
+    border-radius: 5px;
+    border-left: 3px solid #7986cb;
+}
+
+/* 讓可編輯區塊有一個視覺提示 */
+[contenteditable="true"] {
+    border: 1px solid #c5cae9; /* 淺藍色邊框 */
+    padding: 5px;
     border-radius: 4px;
+    min-height: 20px; /* 確保內容為空時仍可點擊 */
 }
 
-li strong {
-    color: #d84315; /* 強調關鍵地點 */
+/* 當區塊獲得焦點時的樣式 */
+[contenteditable="true"]:focus {
+    outline: none;
+    border-color: #3f51b5; /* 編輯時邊框變深 */
+    box-shadow: 0 0 5px rgba(63, 81, 181, 0.5);
 }
 
-/* 手機優化 (當螢幕寬度小於 600px) */
+.notes-box li {
+    margin-bottom: 5px;
+    font-size: 0.9em;
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    list-style: none; /* 移除列表符號，讓編輯更像文本框 */
+}
+
+/* [手機優化保持不變...] */
+
 @media (max-width: 600px) {
     .container {
         padding: 10px;
     }
     h1 {
-        font-size: 1.5em;
-    }
-    h2 {
-        font-size: 1.2em;
+        font-size: 1.8em;
     }
 }
