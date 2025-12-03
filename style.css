@@ -1,0 +1,70 @@
+/* style.css */
+body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f7f6; /* 輕微的灰色背景 */
+    color: #333;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 800px; /* 限制內容寬度 */
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #ffffff; /* 內容區塊白色背景 */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #004d40; /* 深綠色標題 */
+    margin-bottom: 5px;
+    border-bottom: 3px solid #009688; /* 綠色底線 */
+    padding-bottom: 10px;
+}
+
+h2 {
+    color: #00796b; /* 中等綠色標題 */
+    border-left: 5px solid #ffab40; /* 橙色裝飾線 */
+    padding-left: 10px;
+    margin-top: 25px;
+}
+
+.day-plan {
+    background-color: #e0f2f1; /* 每日行程淺綠色背景 */
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+li {
+    background-color: #ffffff;
+    margin-bottom: 10px;
+    padding: 12px;
+    border-left: 4px solid #4db6ac; /* 內容區塊裝飾線 */
+    border-radius: 4px;
+}
+
+li strong {
+    color: #d84315; /* 強調關鍵地點 */
+}
+
+/* 手機優化 (當螢幕寬度小於 600px) */
+@media (max-width: 600px) {
+    .container {
+        padding: 10px;
+    }
+    h1 {
+        font-size: 1.5em;
+    }
+    h2 {
+        font-size: 1.2em;
+    }
+}
