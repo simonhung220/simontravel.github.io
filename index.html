@@ -2,123 +2,364 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>皇后鎮兩日遊行程 (動態備註版)</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>紐西蘭旅程規劃 - 雲端同步版</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, addDoc, setDoc, deleteDoc, onSnapshot, collection, query, orderBy, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'nz-travel-pro';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        if (firebaseConfig) {
+            const app = initializeApp(firebaseConfig);
+            window.db = getFirestore(app);
+            window.auth = getAuth(app);
+            window.appId = appId;
+
+            onAuthStateChanged(window.auth, async (user) => {
+                if (user) {
+                    window.userId = user.uid;
+                } else {
+                    try {
+                        if (initialAuthToken) {
+                            await signInWithCustomToken(window.auth, initialAuthToken);
+                        } else {
+                            await signInAnonymously(window.auth);
+                        }
+                    } catch (e) { console.error("Auth Error", e); }
+                }
+            });
+        }
+
+        window.fb = { doc, addDoc, setDoc, deleteDoc, onSnapshot, collection, query, orderBy, updateDoc };
+    </script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'nz-primary': '#0F4C81', // 經典藍
+                        'nz-accent': '#FF7E5F',  // 珊瑚橘
+                        'nz-bg': '#F8FAFC',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+        .glass-nav { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); }
+        .tab-active { color: #0F4C81; font-weight: 700; border-top: 3px solid #0F4C81; }
+        ::-webkit-scrollbar { display: none; }
+    </style>
 </head>
-<body>
-    <div class="container">
-        <h1>🇳🇿 皇后鎮兩日遊行程 🏔️</h1>
-        <p class="description">點擊地點名稱可開啟 Google 地圖。點擊「ℹ️ 備註」查看詳細資訊，**內容區塊可點擊修改 (儲存在此瀏覽器)**。</p>
+<body class="bg-gray-100 font-sans antialiased text-gray-900">
 
-        <div class="day-plan">
-            <h2>✨ Day 1：湖光山色與刺激體驗</h2>
-            
-            <div class="activity-card">
-                <h3>上午</h3>
-                <a href="https://www.google.com/maps/search/Skyline+Gondola+Queenstown" target="_blank">空中纜車 (Skyline Gondola)</a>
-                <p>搭乘纜車上山，俯瞰皇后鎮和瓦卡蒂普湖的壯麗景色。</p>
-                <details class="notes-box">
-                    <summary>ℹ️ 備註：纜車與門票 <span class="edit-icon">✏️</span></summary>
-                    <ul contenteditable="true" data-note-id="0">
-                        <li>建議早上前往，避開下午人潮。</li>
-                        <li>纜車票可與 Luge (斜坡滑車) 套票一起購買較划算。</li>
-                        <li>山頂有咖啡廳和餐廳。</li>
-                    </ul>
-                </details>
-            </div>
-            
-            <div class="distance">
-                步行至鎮中心約 5 分鐘
-            </div>
-
-            <div class="activity-card">
-                <h3>下午</h3>
-                <a href="https://www.google.com/maps/search/Queenstown+Luge" target="_blank">山頂 Luge (斜坡滑車)</a>
-                <p>在山頂體驗 Luge；或體驗刺激的滑翔傘 (Paragliding)。</p>
-                <details class="notes-box">
-                    <summary>ℹ️ 備註：活動建議 <span class="edit-icon">✏️</span></summary>
-                    <ul contenteditable="true" data-note-id="1">
-                        <li>Luge 至少建議購買 3 次券，才夠盡興！</li>
-                        <li>滑翔傘需提前預訂，受天氣影響較大。</li>
-                    </ul>
-                </details>
-            </div>
-            
-            <div class="distance">
-                從纜車下山後，步行約 10 分鐘
-            </div>
-
-            <div class="activity-card">
-                <h3>晚上 (晚餐)</h3>
-                <a href="https://www.google.com/maps/search/Fergburger+Queenstown" target="_blank">Fergburger</a>
-                <p>在鎮中心享用晚餐，強烈推薦品嚐皇后鎮傳奇漢堡！</p>
-                <details class="notes-box">
-                    <summary>ℹ️ 備註：排隊建議 <span class="edit-icon">✏️</span></summary>
-                    <ul contenteditable="true" data-note-id="2">
-                        <li>**營業時間：** 早上 8 點至凌晨 5 點。</li>
-                        <li>建議提前電話或網路預訂，可減少排隊時間。</li>
-                        <li>地點在 Shotover Street 上。</li>
-                    </ul>
-                </details>
-            </div>
-
-        </div>
-        <div class="day-plan">
-            <h2>🛶 Day 2：峽灣/湖畔與極限挑戰</h2>
-
-            <div class="activity-card">
-                <h3>上午</h3>
-                <a href="https://www.google.com/maps/search/Lake+Wakatipu+Queenstown" target="_blank">瓦卡蒂普湖畔 (Lake Wakatipu)</a>
-                <p>選擇在湖畔散步，或參加米爾福德峽灣一日遊 (需一整天)。</p>
-                <details class="notes-box">
-                    <summary>ℹ️ 備註：交通與船隻 <span class="edit-icon">✏️</span></summary>
-                    <ul contenteditable="true" data-note-id="3">
-                        <li>**米爾福德峽灣：** 開車單程約 4 小時，建議參加當地巴士團。</li>
-                        <li>可搭乘蒸汽船 TSS Earnslaw 遊湖。</li>
-                    </ul>
-                </details>
-            </div>
-            
-            <div class="distance">
-                開車約 25 分鐘 (沿著 6 號公路)
-            </div>
-
-            <div class="activity-card">
-                <h3>下午</h3>
-                <a href="https://www.google.com/maps/search/Kawarau+Bridge+Bungy+Queenstown" target="_blank">Kawarau 大橋觀景 (Bungy)</a>
-                <p>前往世界著名的笨豬跳觀景點；或參觀寧靜的皇后鎮花園。</p>
-                <details class="notes-box">
-                    <summary>ℹ️ 備註：時間規劃 <span class="edit-icon">✏️</span></summary>
-                    <ul contenteditable="true" data-note-id="4">
-                        <li>Kawarau 大橋是 AJ Hackett 第一個笨豬跳地點。</li>
-                        <li>觀景免費，跳傘需提前預訂。</li>
-                    </ul>
-                </details>
-            </div>
-            
-            <div class="distance">
-                開車約 30 分鐘回到市區
-            </div>
-
-            <div class="activity-card">
-                <h3>晚上</h3>
-                <a href="https://www.google.com/maps/search/Queenstown+Bar+Lakefront" target="_blank">湖畔酒吧區</a>
-                <p>晚餐後在湖畔找間酒吧，享受皇后鎮的悠閒夜生活。</p>
-                <details class="notes-box">
-                    <summary>ℹ️ 備註：推薦酒吧 <span class="edit-icon">✏️</span></summary>
-                    <ul contenteditable="true" data-note-id="5">
-                        <li>推薦：The Sundeck (屋頂酒吧) 或 Barmuda。</li>
-                        <li>注意：紐西蘭飲酒年齡為 18 歲。</li>
-                    </ul>
-                </details>
-            </div>
-        </div>
-        <footer>
-            <p>旅行愉快！</p>
-        </footer>
-    </div>
+<div id="app" class="flex flex-col min-h-screen max-w-md mx-auto bg-nz-bg shadow-2xl relative">
     
-    <script src="script.js"></script> 
+    <!-- 頂部導航 -->
+    <header class="glass-nav sticky top-0 z-40 px-6 py-4 flex justify-between items-center border-b border-gray-100">
+        <div>
+            <h1 class="text-xl font-black text-nz-primary tracking-tight">NZ TRAVEL</h1>
+            <p v-if="userId" class="text-[10px] text-gray-400 uppercase tracking-widest">Cloud Sync Active</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+            <span class="text-xs font-bold text-gray-500">已連線</span>
+        </div>
+    </header>
+
+    <main class="flex-grow pb-32">
+        <!-- 骨架屏 (載入中) -->
+        <div v-if="!isReady" class="p-8 text-center space-y-4">
+            <div class="animate-spin text-4xl">🇳🇿</div>
+            <p class="text-gray-400 animate-pulse">正在從雲端載入行程...</p>
+        </div>
+
+        <div v-else class="px-5 pt-6 animate-in fade-in duration-500">
+            <!-- 行程分頁 -->
+            <section v-if="activeTab === 'itinerary'" class="space-y-6">
+                <div class="flex justify-between items-end">
+                    <div>
+                        <h2 class="text-3xl font-black text-gray-800">My Trip</h2>
+                        <p class="text-gray-500 text-sm">共有 {{ itinerary.length }} 個活動地點</p>
+                    </div>
+                    <button @click="openModal(null)" class="w-12 h-12 bg-nz-primary text-white rounded-2xl shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"/></svg>
+                    </button>
+                </div>
+
+                <div v-for="(items, day) in sortedItinerary" :key="day" class="space-y-3">
+                    <div class="flex items-center gap-4">
+                        <span class="text-xs font-black px-3 py-1 bg-nz-primary text-white rounded-full">DAY {{ day }}</span>
+                        <div class="h-[1px] flex-grow bg-gray-200"></div>
+                    </div>
+                    
+                    <div v-for="item in items" :key="item.id" class="group bg-white rounded-3xl p-4 shadow-sm border border-transparent hover:border-blue-100 transition">
+                        <div class="flex gap-4">
+                            <div class="text-center min-w-[50px]">
+                                <p class="text-sm font-black text-nz-primary">{{ item.time }}</p>
+                                <div class="mt-2 w-1 h-12 bg-gray-100 mx-auto rounded-full overflow-hidden">
+                                    <div :class="item.done ? 'h-full bg-green-400' : 'h-0'" class="transition-all"></div>
+                                </div>
+                            </div>
+                            <div class="flex-grow">
+                                <div class="flex justify-between items-start">
+                                    <h3 :class="{'line-through text-gray-400': item.done}" class="text-lg font-bold text-gray-800 leading-tight">{{ item.location }}</h3>
+                                    <input type="checkbox" v-model="item.done" @change="toggleStatus(item)" class="w-5 h-5 rounded-full border-gray-300 text-nz-primary focus:ring-nz-primary">
+                                </div>
+                                <p class="text-gray-500 text-sm mt-1">{{ item.details }}</p>
+                                
+                                <div class="mt-4 flex items-center gap-3">
+                                    <a :href="`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.location + ' New Zealand')}`" target="_blank" 
+                                       class="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg">導航</a>
+                                    <button @click="openModal(item)" class="text-xs font-bold text-gray-400 px-3 py-1.5 rounded-lg border">編輯</button>
+                                    <button @click="deleteItem(item.id, 'itinerary_items')" class="text-xs font-bold text-red-300 px-3 py-1.5">刪除</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 分帳分頁 -->
+            <section v-if="activeTab === 'money'" class="space-y-6">
+                <div class="bg-nz-primary rounded-[2.5rem] p-8 text-white shadow-xl relative overflow-hidden">
+                    <div class="relative z-10">
+                        <p class="opacity-70 text-sm font-medium">總支出金額</p>
+                        <h2 class="text-4xl font-black mt-1">$ {{ totalExpenses.toFixed(0) }} <span class="text-lg font-normal">NZD</span></h2>
+                        <div class="mt-8 flex gap-4 overflow-x-auto pb-2">
+                            <div v-for="person in travelers" class="bg-white/10 px-4 py-2 rounded-2xl backdrop-blur-md">
+                                <p class="text-[10px] uppercase font-bold opacity-60">{{ person }}</p>
+                                <p class="text-sm font-bold">$ {{ getPersonalSpent(person).toFixed(0) }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-white/5 rounded-full"></div>
+                </div>
+
+                <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
+                    <h3 class="font-black text-gray-800 mb-4 flex items-center gap-2">
+                        <span class="w-1.5 h-4 bg-orange-400 rounded-full"></span>
+                        結算方案
+                    </h3>
+                    <div v-if="settlements.length" class="space-y-3">
+                        <div v-for="s in settlements" class="flex items-center justify-between bg-orange-50/50 p-4 rounded-2xl border border-orange-100">
+                            <div class="flex items-center gap-3">
+                                <span class="font-bold text-gray-700">{{ s.from }}</span>
+                                <svg class="w-4 h-4 text-orange-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                                <span class="font-bold text-gray-700">{{ s.to }}</span>
+                            </div>
+                            <span class="text-orange-600 font-black">$ {{ s.amount.toFixed(1) }}</span>
+                        </div>
+                    </div>
+                    <p v-else class="text-center py-4 text-gray-400 text-sm">目前收支平衡</p>
+                </div>
+
+                <div class="space-y-4">
+                    <h3 class="font-black text-gray-800">新增支出</h3>
+                    <div class="bg-white rounded-3xl p-6 shadow-sm space-y-4 border border-gray-100">
+                        <input v-model="expenseForm.desc" placeholder="項目：例如 午餐、油資" class="w-full bg-gray-50 border-none rounded-2xl px-4 py-3 focus:ring-2 ring-nz-primary">
+                        <div class="flex gap-2">
+                            <input v-model.number="expenseForm.amount" type="number" placeholder="金額" class="flex-grow bg-gray-50 border-none rounded-2xl px-4 py-3 focus:ring-2 ring-nz-primary">
+                            <select v-model="expenseForm.payer" class="bg-gray-50 border-none rounded-2xl px-4 py-3 focus:ring-2 ring-nz-primary font-bold">
+                                <option v-for="p in travelers" :value="p">{{p}}</option>
+                            </select>
+                        </div>
+                        <button @click="addExpense" class="w-full bg-nz-accent text-white py-4 rounded-2xl font-black shadow-lg shadow-orange-200 active:scale-95 transition">紀錄支出</button>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <h3 class="font-black text-gray-800">歷史紀錄</h3>
+                    <div v-for="e in expenses" :key="e.id" class="bg-white px-5 py-4 rounded-2xl shadow-sm border border-gray-50 flex justify-between items-center">
+                        <div>
+                            <p class="font-bold text-gray-800">{{ e.desc }}</p>
+                            <p class="text-[10px] text-gray-400 font-bold">{{ e.payer }} 支付了 ${{ e.amount }}</p>
+                        </div>
+                        <button @click="deleteItem(e.id, 'expense_records')" class="text-red-200 hover:text-red-500">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- 底部 Tab -->
+    <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto glass-nav border-t border-gray-100 safe-bottom z-50">
+        <div class="flex justify-around items-center">
+            <button @click="activeTab = 'itinerary'" :class="{'tab-active': activeTab === 'itinerary'}" class="flex-1 py-4 flex flex-col items-center gap-1 text-gray-400 transition-all">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+                <span class="text-[10px] font-black uppercase">Itinerary</span>
+            </button>
+            <button @click="activeTab = 'money'" :class="{'tab-active': activeTab === 'money'}" class="flex-1 py-4 flex flex-col items-center gap-1 text-gray-400 transition-all">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8v4m0 4v2m-6.5-.24V7.5a2.5 2.5 0 015 0V17h-5zM9 19h6"/></svg>
+                <span class="text-[10px] font-black uppercase">Splitting</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- 彈窗 -->
+    <div v-if="modal.show" class="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+        <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl animate-in slide-in-from-bottom-10 duration-500">
+            <h3 class="text-2xl font-black text-nz-primary mb-6">{{ modal.isEdit ? '編輯行程' : '新的冒險' }}</h3>
+            <div class="space-y-4">
+                <div class="flex gap-2">
+                    <div class="w-24">
+                        <label class="text-[10px] font-black text-gray-400 uppercase ml-2">Day</label>
+                        <input type="number" v-model="modal.data.day" class="w-full bg-gray-100 border-none rounded-2xl p-4 font-black">
+                    </div>
+                    <div class="flex-grow">
+                        <label class="text-[10px] font-black text-gray-400 uppercase ml-2">Time</label>
+                        <input type="time" v-model="modal.data.time" class="w-full bg-gray-100 border-none rounded-2xl p-4 font-black">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[10px] font-black text-gray-400 uppercase ml-2">Location</label>
+                    <input type="text" v-model="modal.data.location" placeholder="地點名稱" class="w-full bg-gray-100 border-none rounded-2xl p-4 font-bold">
+                </div>
+                <div>
+                    <label class="text-[10px] font-black text-gray-400 uppercase ml-2">Notes</label>
+                    <textarea v-model="modal.data.details" rows="3" placeholder="備註..." class="w-full bg-gray-100 border-none rounded-2xl p-4"></textarea>
+                </div>
+            </div>
+            <div class="mt-8 flex gap-3">
+                <button @click="modal.show = false" class="flex-1 py-4 text-gray-400 font-bold">取消</button>
+                <button @click="saveItinerary" class="flex-[2] bg-nz-primary text-white py-4 rounded-2xl font-black shadow-lg shadow-blue-200">儲存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const { createApp, ref, computed, onMounted, watchEffect } = Vue;
+
+createApp({
+    setup() {
+        const activeTab = ref('itinerary');
+        const isReady = ref(false);
+        const userId = ref(null);
+        const travelers = ref(['小明', '小華', '小美']);
+        
+        const itinerary = ref([]);
+        const expenses = ref([]);
+        
+        const modal = ref({ show: false, isEdit: false, data: {} });
+        const expenseForm = ref({ desc: '', amount: null, payer: '小明' });
+
+        onMounted(() => {
+            const check = setInterval(() => {
+                if (window.userId) {
+                    userId.value = window.userId;
+                    isReady.ref = true;
+                    clearInterval(check);
+                    initData();
+                }
+            }, 100);
+        });
+
+        const initData = () => {
+            const { onSnapshot, collection } = window.fb;
+            const basePath = `/artifacts/${window.appId}/users/${window.userId}`;
+
+            onSnapshot(collection(window.db, `${basePath}/itinerary_items`), (snap) => {
+                itinerary.value = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                isReady.value = true;
+            });
+
+            onSnapshot(collection(window.db, `${basePath}/expense_records`), (snap) => {
+                expenses.value = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            });
+        };
+
+        const sortedItinerary = computed(() => {
+            const groups = {};
+            const sorted = [...itinerary.value].sort((a, b) => a.day - b.day || a.time.localeCompare(b.time));
+            sorted.forEach(i => {
+                if (!groups[i.day]) groups[i.day] = [];
+                groups[i.day].push(i);
+            });
+            return groups;
+        });
+
+        // 業務邏輯
+        const openModal = (item) => {
+            modal.value.show = true;
+            modal.value.isEdit = !!item;
+            modal.value.data = item ? { ...item } : { day: 1, time: '09:00', location: '', details: '', done: false };
+        };
+
+        const saveItinerary = async () => {
+            const { addDoc, setDoc, doc, collection } = window.fb;
+            const path = `/artifacts/${window.appId}/users/${userId.value}/itinerary_items`;
+            const payload = { ...modal.value.data };
+            const id = payload.id;
+            delete payload.id;
+
+            if (id) await setDoc(doc(window.db, path, id), payload);
+            else await addDoc(collection(window.db, path), payload);
+            modal.value.show = false;
+        };
+
+        const toggleStatus = async (item) => {
+            const { updateDoc, doc } = window.fb;
+            const path = `/artifacts/${window.appId}/users/${userId.value}/itinerary_items`;
+            await updateDoc(doc(window.db, path, item.id), { done: item.done });
+        };
+
+        const addExpense = async () => {
+            if (!expenseForm.value.amount) return;
+            const { addDoc, collection } = window.fb;
+            const path = `/artifacts/${window.appId}/users/${userId.value}/expense_records`;
+            await addDoc(collection(window.db, path), { ...expenseForm.value, date: new Date().toISOString() });
+            expenseForm.value.desc = '';
+            expenseForm.value.amount = null;
+        };
+
+        const deleteItem = async (id, coll) => {
+            if (!confirm('確定刪除？')) return;
+            const { deleteDoc, doc } = window.fb;
+            await deleteDoc(doc(window.db, `/artifacts/${window.appId}/users/${userId.value}/${coll}`, id));
+        };
+
+        // 分帳計算
+        const totalExpenses = computed(() => expenses.value.reduce((acc, cur) => acc + (cur.amount || 0), 0));
+        const getPersonalSpent = (name) => expenses.value.filter(e => e.payer === name).reduce((acc, cur) => acc + cur.amount, 0);
+
+        const settlements = computed(() => {
+            if (!expenses.value.length) return [];
+            const avg = totalExpenses.value / travelers.value.length;
+            const diffs = travelers.value.map(name => ({ name, balance: getPersonalSpent(name) - avg }));
+            
+            const debtors = diffs.filter(d => d.balance < 0).sort((a,b) => a.balance - b.balance);
+            const creditors = diffs.filter(d => d.balance > 0).sort((a,b) => b.balance - a.balance);
+            
+            const results = [];
+            let i = 0, j = 0;
+            while(i < debtors.length && j < creditors.length) {
+                const amount = Math.min(Math.abs(debtors[i].balance), creditors[j].balance);
+                results.push({ from: debtors[i].name, to: creditors[j].name, amount });
+                debtors[i].balance += amount;
+                creditors[j].balance -= amount;
+                if(Math.abs(debtors[i].balance) < 0.1) i++;
+                if(creditors[j].balance < 0.1) j++;
+            }
+            return results;
+        });
+
+        return {
+            activeTab, isReady, userId, travelers, itinerary, expenses, modal, expenseForm,
+            sortedItinerary, totalExpenses, settlements, openModal, saveItinerary, 
+            toggleStatus, addExpense, deleteItem, getPersonalSpent
+        };
+    }
+}).mount('#app');
+</script>
 </body>
 </html>
