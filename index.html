@@ -8,36 +8,41 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, addDoc, setDoc, deleteDoc, onSnapshot, collection, query, orderBy, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'nz-travel-pro';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        // 使用您提供的 Firebase 專案設定
+        const firebaseConfig = {
+            apiKey: "AIzaSyCCcLO8rObkdFV2iuujxq4XhkxE9OLGWb0",
+            authDomain: "nz-shared-trip.firebaseapp.com",
+            projectId: "nz-shared-trip",
+            storageBucket: "nz-shared-trip.firebasestorage.app",
+            messagingSenderId: "985346684844",
+            appId: "1:985346684844:web:011e2ab03e7b5790396c09"
+        };
 
-        if (firebaseConfig) {
-            const app = initializeApp(firebaseConfig);
-            window.db = getFirestore(app);
-            window.auth = getAuth(app);
-            window.appId = appId;
+        const appId = "nz-shared-trip"; // 固定為您的專案 ID
 
-            const initAuth = async () => {
-                try {
-                    if (initialAuthToken) {
-                        await signInWithCustomToken(window.auth, initialAuthToken);
-                    } else {
-                        await signInAnonymously(window.auth);
-                    }
-                } catch (e) { console.error("Auth Error", e); }
-            };
-            initAuth();
+        const app = initializeApp(firebaseConfig);
+        window.db = getFirestore(app);
+        window.auth = getAuth(app);
+        window.appId = appId;
 
-            onAuthStateChanged(window.auth, (user) => {
-                if (user) {
-                    window.userId = user.uid;
-                }
-            });
-        }
+        // 初始化匿名認證
+        const initAuth = async () => {
+            try {
+                await signInAnonymously(window.auth);
+            } catch (e) { 
+                console.error("Auth Error: 請確保 Firebase 控制台已啟用匿名認證", e); 
+            }
+        };
+        initAuth();
+
+        onAuthStateChanged(window.auth, (user) => {
+            if (user) {
+                window.userId = user.uid;
+            }
+        });
 
         window.fb = { doc, addDoc, setDoc, deleteDoc, onSnapshot, collection, query, orderBy, updateDoc };
     </script>
@@ -69,11 +74,11 @@
     <header class="glass-nav sticky top-0 z-40 px-6 py-4 flex justify-between items-center border-b border-gray-100">
         <div>
             <h1 class="text-xl font-black text-nz-primary tracking-tight">NZ SHARED TRIP</h1>
-            <p v-if="userId" class="text-[10px] text-gray-400 uppercase tracking-widest">Multi-User Sync On</p>
+            <p v-if="userId" class="text-[10px] text-gray-400 uppercase tracking-widest">個人雲端專案已啟用</p>
         </div>
         <div class="flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-            <span class="text-xs font-bold text-gray-500">雲端連線中</span>
+            <span class="text-xs font-bold text-gray-500">雲端同步中</span>
         </div>
     </header>
 
@@ -119,7 +124,7 @@
                                 
                                 <div class="mt-4 flex items-center gap-3">
                                     <a :href="`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.location + ' New Zealand')}`" target="_blank" 
-                                       class="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg">導航</a>
+                                       class="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg">導覽</a>
                                     <button @click="openModal(item)" class="text-xs font-bold text-gray-400 px-3 py-1.5 rounded-lg border">編輯</button>
                                     <button @click="deleteItem(item.id, 'itinerary_items')" class="text-xs font-bold text-red-300 px-3 py-1.5">刪除</button>
                                 </div>
@@ -247,7 +252,7 @@ createApp({
         const activeTab = ref('itinerary');
         const isReady = ref(false);
         const userId = ref(null);
-        const travelers = ref(['小明', '小華', '小美']); // 可視需求修改名單
+        const travelers = ref(['小明', '小華', '小美']); // 隨時可修改旅伴清單
         
         const itinerary = ref([]);
         const expenses = ref([]);
@@ -255,7 +260,7 @@ createApp({
         const modal = ref({ show: false, isEdit: false, data: {} });
         const expenseForm = ref({ desc: '', amount: null, payer: '小明' });
 
-        // 核心：使用公共路徑實作多人同步
+        // 指向您專案下的公共路徑
         const getPublicCollection = (name) => {
             const { collection } = window.fb;
             return collection(window.db, 'artifacts', window.appId, 'public', 'data', name);
@@ -279,13 +284,13 @@ createApp({
         const initSync = () => {
             const { onSnapshot } = window.fb;
 
-            // 監聽行程更新
+            // 實時監聽行程
             onSnapshot(getPublicCollection('itinerary_items'), (snap) => {
                 itinerary.value = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                 isReady.value = true;
-            }, (err) => console.error("Sync Error", err));
+            }, (err) => console.error("Sync Error: 行程監聽失敗，請檢查 Firestore 權限", err));
 
-            // 監聽支出更新
+            // 實時監聽支出
             onSnapshot(getPublicCollection('expense_records'), (snap) => {
                 expenses.value = snap.docs.map(d => ({ id: d.id, ...d.data() }));
             }, (err) => console.error("Sync Error", err));
@@ -335,7 +340,7 @@ createApp({
         };
 
         const deleteItem = async (id, collName) => {
-            if (!confirm('確定刪除？這會影響所有人的檢視內容。')) return;
+            if (!confirm('確定要從雲端刪除嗎？此動作無法撤回。')) return;
             const { deleteDoc } = window.fb;
             await deleteDoc(getPublicDoc(collName, id));
         };
