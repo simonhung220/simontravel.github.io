@@ -3,27 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>紐西蘭旅程規劃 - 完整穩定版</title>
+    <title>紐西蘭旅程規劃 - 深色穩定版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <style>
         [v-cloak] { display: none !important; }
         .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
-        .glass-nav { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); }
-        .tab-active { color: #0F4C81; font-weight: 700; border-top: 3px solid #0F4C81; }
+        .glass-nav { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); }
+        .tab-active { color: #60a5fa; font-weight: 700; border-top: 3px solid #60a5fa; }
         ::-webkit-scrollbar { display: none; }
+        body { background-color: #0f172a; color: #f1f5f9; }
     </style>
 </head>
-<body class="bg-gray-100 font-sans antialiased text-gray-900">
+<body class="font-sans antialiased text-slate-200">
 
-<div id="app" v-cloak class="flex flex-col min-h-screen max-w-md mx-auto bg-slate-50 shadow-2xl relative">
+<div id="app" v-cloak class="flex flex-col min-h-screen max-w-md mx-auto bg-slate-900 shadow-2xl relative">
     
     <!-- 頂部標題 -->
-    <header class="glass-nav sticky top-0 z-40 px-6 py-4 flex justify-between items-center border-b border-gray-100">
+    <header class="glass-nav sticky top-0 z-40 px-6 py-4 flex justify-between items-center border-b border-slate-800">
         <div>
-            <h1 class="text-xl font-black text-slate-800 tracking-tight">NZ TRIP 2026</h1>
-            <p class="text-[10px] text-blue-500 font-bold uppercase tracking-widest">
-                ● 完整行程模式 (Day 1 - Day 5)
+            <h1 class="text-xl font-black text-white tracking-tight">NZ TRIP 2026</h1>
+            <p class="text-[10px] text-blue-400 font-bold uppercase tracking-widest">
+                ● 深色質感模式 (Day 1 - Day 5)
             </p>
         </div>
     </header>
@@ -34,39 +35,39 @@
         <section v-if="activeTab === 'itinerary'" class="space-y-6">
             <div class="flex justify-between items-end">
                 <div>
-                    <h2 class="text-3xl font-black text-gray-800">我們的行程</h2>
-                    <p class="text-gray-500 text-sm">已還原所有詳細資訊</p>
+                    <h2 class="text-3xl font-black text-white">我們的行程</h2>
+                    <p class="text-slate-400 text-sm">點擊核取方塊標記完成</p>
                 </div>
-                <button @click="openModal(null)" class="w-12 h-12 bg-blue-600 text-white rounded-2xl shadow-lg flex items-center justify-center">
+                <button @click="openModal(null)" class="w-12 h-12 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl shadow-lg flex items-center justify-center transition">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"/></svg>
                 </button>
             </div>
 
             <div v-for="(items, day) in sortedItinerary" :key="day" class="space-y-3">
                 <div class="flex items-center gap-4">
-                    <span class="text-xs font-black px-3 py-1 bg-blue-900 text-white rounded-full uppercase">Day {{ day }}</span>
-                    <div class="h-[1px] flex-grow bg-gray-200"></div>
+                    <span class="text-xs font-black px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full uppercase border border-blue-500/30">Day {{ day }}</span>
+                    <div class="h-[1px] flex-grow bg-slate-800"></div>
                 </div>
                 
-                <div v-for="item in items" :key="item.id || item.location" class="bg-white rounded-3xl p-4 shadow-sm border border-gray-50">
+                <div v-for="item in items" :key="item.id || item.location" class="bg-slate-800/50 rounded-3xl p-4 border border-slate-700/50 backdrop-blur-sm">
                     <div class="flex gap-4">
                         <div class="text-center min-w-[55px]">
-                            <p class="text-sm font-black text-blue-900">{{ item.time }}</p>
-                            <div class="mt-2 w-1 h-12 bg-gray-100 mx-auto rounded-full overflow-hidden">
-                                <div :class="item.done ? 'h-full bg-green-400' : 'h-0'" class="transition-all"></div>
+                            <p class="text-sm font-black text-blue-400">{{ item.time }}</p>
+                            <div class="mt-2 w-1 h-12 bg-slate-700 mx-auto rounded-full overflow-hidden">
+                                <div :class="item.done ? 'h-full bg-emerald-500' : 'h-0'" class="transition-all duration-500"></div>
                             </div>
                         </div>
                         <div class="flex-grow">
                             <div class="flex justify-between items-start">
-                                <h3 :class="{'line-through text-gray-300': item.done}" class="text-lg font-bold text-gray-800 leading-tight">{{ item.location }}</h3>
-                                <input type="checkbox" v-model="item.done" class="w-5 h-5 rounded-full border-gray-300">
+                                <h3 :class="{'line-through text-slate-500': item.done, 'text-white': !item.done}" class="text-lg font-bold leading-tight transition">{{ item.location }}</h3>
+                                <input type="checkbox" v-model="item.done" class="w-5 h-5 rounded-full border-slate-600 bg-slate-700 text-blue-500">
                             </div>
-                            <p class="text-gray-500 text-xs mt-1 whitespace-pre-line">{{ item.details }}</p>
+                            <p class="text-slate-400 text-xs mt-1 whitespace-pre-line leading-relaxed">{{ item.details }}</p>
                             
                             <div class="mt-4 flex items-center gap-2">
                                 <a :href="`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.location + ' New Zealand')}`" target="_blank" 
-                                   class="text-[10px] font-bold text-blue-600 bg-blue-50 px-3 py-2 rounded-xl">MAP</a>
-                                <button @click="openModal(item)" class="text-[10px] font-bold text-gray-400 bg-gray-50 px-3 py-2 rounded-xl">EDIT</button>
+                                   class="text-[10px] font-bold text-blue-400 bg-blue-400/10 px-3 py-2 rounded-xl border border-blue-400/20 hover:bg-blue-400/20 transition">MAP</a>
+                                <button @click="openModal(item)" class="text-[10px] font-bold text-slate-400 bg-slate-700/50 px-3 py-2 rounded-xl hover:bg-slate-700 transition">EDIT</button>
                             </div>
                         </div>
                     </div>
@@ -75,45 +76,103 @@
         </section>
 
         <!-- 分帳分頁 -->
-        <section v-if="activeTab === 'money'" class="space-y-6 text-center py-10">
-            <div class="text-5xl mb-4 text-gray-300">💰</div>
-            <h3 class="text-xl font-bold text-gray-800">分帳功能已就緒</h3>
-            <p class="text-gray-500 text-sm">您可以點擊下方導覽切換</p>
+        <section v-if="activeTab === 'money'" class="space-y-6">
+            <!-- 總花費卡片 -->
+            <div class="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[2.5rem] p-8 text-white shadow-xl relative overflow-hidden">
+                <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+                <p class="opacity-80 text-sm font-medium">總支出金額 (NZD)</p>
+                <h2 class="text-4xl font-black mt-1">$ {{ totalExpenses.toFixed(0) }}</h2>
+                
+                <div class="mt-8 flex gap-3 overflow-x-auto pb-2 scroll-hide">
+                    <div v-for="person in travelers" :key="person" class="bg-white/10 px-4 py-3 rounded-2xl backdrop-blur-md min-w-[100px] border border-white/10">
+                        <p class="text-[10px] uppercase font-bold opacity-60">{{ person }} 支付</p>
+                        <p class="text-sm font-bold">$ {{ getPersonalSpent(person).toFixed(0) }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 結算建議 -->
+            <div class="bg-slate-800/50 rounded-3xl p-6 border border-slate-700/50 shadow-sm">
+                <h3 class="font-black text-white mb-4 flex items-center gap-2">
+                    <span class="w-1.5 h-4 bg-orange-400 rounded-full"></span>
+                    結算建議
+                </h3>
+                <div v-if="settlements.length" class="space-y-3">
+                    <div v-for="(s, idx) in settlements" :key="idx" class="flex items-center justify-between bg-orange-400/10 p-4 rounded-2xl border border-orange-400/20">
+                        <div class="flex items-center gap-3">
+                            <span class="font-bold text-slate-200">{{ s.from }}</span>
+                            <span class="text-orange-400">→</span>
+                            <span class="font-bold text-slate-200">{{ s.to }}</span>
+                        </div>
+                        <span class="text-orange-400 font-black">$ {{ s.amount.toFixed(1) }}</span>
+                    </div>
+                </div>
+                <p v-else class="text-center py-4 text-slate-500 text-sm italic">目前收支平衡，無需付款</p>
+            </div>
+
+            <!-- 新增支出 -->
+            <div class="bg-slate-800/50 rounded-3xl p-6 border border-slate-700/50 space-y-4 shadow-sm">
+                <h3 class="font-black text-white">新增支出紀錄</h3>
+                <input v-model="expenseForm.desc" placeholder="項目名稱 (如：租車、晚餐)" class="w-full bg-slate-900 border-slate-700 text-white rounded-2xl px-4 py-4 focus:ring-2 focus:ring-blue-500 outline-none">
+                <div class="flex gap-2">
+                    <input v-model.number="expenseForm.amount" type="number" placeholder="金額" class="flex-grow bg-slate-900 border-slate-700 text-white rounded-2xl px-4 py-4 focus:ring-2 focus:ring-blue-500 outline-none">
+                    <select v-model="expenseForm.payer" class="bg-slate-900 border-slate-700 text-white rounded-2xl px-4 py-4 font-bold outline-none">
+                        <option v-for="p in travelers" :key="p" :value="p">{{p}}</option>
+                    </select>
+                </div>
+                <button @click="addExpense" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-4 rounded-2xl font-black shadow-lg transition transform active:scale-95">紀錄支出</button>
+            </div>
+
+            <!-- 歷史清單 -->
+            <div class="space-y-3">
+                <h3 class="font-black text-white px-2">最近支出</h3>
+                <div v-for="e in expenses" :key="e.id" class="bg-slate-800/30 px-5 py-4 rounded-2xl border border-slate-700/30 flex justify-between items-center">
+                    <div>
+                        <p class="font-bold text-slate-200">{{ e.desc }}</p>
+                        <p class="text-[10px] text-slate-500 font-bold uppercase">{{ e.payer }} 支付了 ${{ e.amount }}</p>
+                    </div>
+                    <button @click="deleteExpense(e.id)" class="text-slate-600 hover:text-red-400 p-2 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+            </div>
         </section>
     </main>
 
     <!-- 底部導覽 -->
-    <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto glass-nav border-t border-gray-100 safe-bottom z-50">
+    <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto glass-nav border-t border-slate-800 safe-bottom z-50">
         <div class="flex justify-around items-center">
-            <button @click="activeTab = 'itinerary'" :class="{'tab-active': activeTab === 'itinerary'}" class="flex-1 py-4 flex flex-col items-center gap-1 text-gray-400">
+            <button @click="activeTab = 'itinerary'" :class="{'tab-active': activeTab === 'itinerary'}" class="flex-1 py-5 flex flex-col items-center gap-1 text-slate-500 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
                 <span class="text-[10px] font-black uppercase tracking-widest">行程規劃</span>
             </button>
-            <button @click="activeTab = 'money'" :class="{'tab-active': activeTab === 'money'}" class="flex-1 py-4 flex flex-col items-center gap-1 text-gray-400">
+            <button @click="activeTab = 'money'" :class="{'tab-active': activeTab === 'money'}" class="flex-1 py-5 flex flex-col items-center gap-1 text-slate-500 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8v4m0 4v2m-6.5-.24V7.5a2.5 2.5 0 015 0V17h-5zM9 19h6"/></svg>
                 <span class="text-[10px] font-black uppercase tracking-widest">預算分帳</span>
             </button>
         </div>
     </nav>
 
     <!-- 彈窗 -->
-    <div v-if="modal.show" class="fixed inset-0 z-[60] flex items-end justify-center p-4 bg-black/50 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl">
-            <h3 class="text-2xl font-black text-blue-900 mb-6">{{ modal.isEdit ? '編輯行程' : '新增行程' }}</h3>
+    <div v-if="modal.show" class="fixed inset-0 z-[60] flex items-end justify-center p-4 bg-black/70 backdrop-blur-sm">
+        <div class="bg-slate-800 w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl border border-slate-700">
+            <h3 class="text-2xl font-black text-white mb-6">{{ modal.isEdit ? '編輯行程' : '新增行程' }}</h3>
             <div class="space-y-4">
                 <div class="flex gap-2">
                     <div class="w-20">
-                        <label class="text-[10px] font-bold text-gray-400 ml-2">Day</label>
-                        <input type="number" v-model="modal.data.day" class="w-full bg-gray-100 border-none rounded-2xl p-4 font-black">
+                        <label class="text-[10px] font-bold text-slate-500 ml-2 uppercase">Day</label>
+                        <input type="number" v-model="modal.data.day" class="w-full bg-slate-900 border-none rounded-2xl p-4 font-black text-white outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div class="flex-grow">
-                        <label class="text-[10px] font-bold text-gray-400 ml-2">Time</label>
-                        <input type="text" v-model="modal.data.time" class="w-full bg-gray-100 border-none rounded-2xl p-4 font-black">
+                        <label class="text-[10px] font-bold text-slate-500 ml-2 uppercase">Time</label>
+                        <input type="text" v-model="modal.data.time" class="w-full bg-slate-900 border-none rounded-2xl p-4 font-black text-white outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
-                <input type="text" v-model="modal.data.location" placeholder="行程名稱" class="w-full bg-gray-100 border-none rounded-2xl p-4 font-bold">
-                <textarea v-model="modal.data.details" rows="3" placeholder="備註細節" class="w-full bg-gray-100 border-none rounded-2xl p-4 text-sm"></textarea>
+                <input type="text" v-model="modal.data.location" placeholder="行程名稱" class="w-full bg-slate-900 border-none rounded-2xl p-4 font-bold text-white outline-none focus:ring-2 focus:ring-blue-500">
+                <textarea v-model="modal.data.details" rows="3" placeholder="備註細節" class="w-full bg-slate-900 border-none rounded-2xl p-4 text-sm text-slate-300 outline-none focus:ring-2 focus:ring-blue-500"></textarea>
             </div>
             <div class="mt-8 flex gap-3">
-                <button @click="modal.show = false" class="flex-1 py-4 text-gray-400 font-bold">取消</button>
+                <button @click="modal.show = false" class="flex-1 py-4 text-slate-400 font-bold">取消</button>
                 <button @click="saveItinerary" class="flex-[2] bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg">確認儲存</button>
             </div>
         </div>
@@ -126,33 +185,29 @@ const { createApp, ref, computed } = Vue;
 createApp({
     setup() {
         const activeTab = ref('itinerary');
+        const travelers = ref(['小明', '小華', '小美']); // 可自定義成員
+        
         const itinerary = ref([
-            // DAY 1
             { day: 1, time: '18:40', location: '台北 TPE － 香港 HKG', details: '搭機1: 臺灣桃園國際機場\n20:40 抵達 / 轉機 55 分鐘', done: false },
             { day: 1, time: '21:35', location: '香港 HKG － 雪梨 SYD', details: '搭機2: 香港國際機場\n航程約 9 小時', done: false },
-            
-            // DAY 2
             { day: 2, time: '08:40', location: '抵達澳洲雪梨 (SYD)', details: '建議 14:30 前回機場', done: false },
-            { day: 2, time: '10:00', location: '雪梨市區遊覽', details: '雪梨大橋、歌劇院、環形碼頭、月神公園\n(可選) 維多利亞女王大廈、海德公園', done: false },
+            { day: 2, time: '10:00', location: '雪梨市區遊覽', details: '雪梨大橋、歌劇院、環形碼頭、月神公園', done: false },
             { day: 2, time: '16:15', location: '雪梨 SYD － 皇后鎮 ZQN', details: '搭機3: 前往紐西蘭', done: false },
-            { day: 2, time: '21:15', location: '抵達皇后鎮 Queenstown', details: '機場搭巴士 15min / 末班車 00:15\nCheck-in: Airbnb 湖景小木屋 (20 Earnslaw Terrace)', done: false },
-            
-            // DAY 3
-            { day: 3, time: '上午', location: '皇后鎮 Queenstown', details: '(路線1) 跳傘 NZONE Skydive\n(路線2) 奇異鳥公園 Kiwi Park\n週六限定: 假日創意手工市集', done: false },
-            { day: 3, time: '下午', location: 'Skyline 纜車 + Luge 滑車', details: 'Skyline Queenstown 俯瞰全景', done: false },
-            
-            // DAY 4
-            { day: 4, time: '07:40', location: '前往格林諾奇 Glenorchy', details: '🚘 車程約 1 小時', done: false },
-            { day: 4, time: '09:00', location: 'High Country 騎馬', details: '渡河與魔戒場景取景 (High Country Horses)\n午餐: 格林諾奇小鎮', done: false },
-            { day: 4, time: '下午', location: 'Glenorchy 景點與回程', details: 'Glenorchy Wharf / Seven Mile Point\nDeer Park 鹿園 (Deer Park Heights)', done: false },
-            
-            // DAY 5
-            { day: 5, time: '上午', location: '租露營車 & 箭鎮 Arrowtown', details: '租車 (4/27-5/1)\n箭鎮景點: Ayrburn 酒廠、Historic Arrowtown、Tobins Track', done: false },
-            { day: 5, time: '下午', location: '水果小鎮 Cromwell', details: 'Jones Family Fruit Stall / Jackson Orchards', done: false },
+            { day: 2, time: '21:15', location: '抵達皇后鎮 Queenstown', details: 'Check-in: Airbnb 湖景小木屋', done: false },
+            { day: 3, time: '上午', location: '皇后鎮 Queenstown', details: '跳傘或奇異鳥公園\n週六限定: 假日市集', done: false },
+            { day: 3, time: '下午', location: 'Skyline 纜車 + Luge 滑車', details: '俯瞰皇后鎮全景', done: false },
+            { day: 4, time: '09:00', location: 'High Country 騎馬', details: '格林諾奇渡河與魔戒場景', done: false },
+            { day: 4, time: '下午', location: 'Deer Park 鹿園', details: 'Deer Park Heights 餵鹿', done: false },
+            { day: 5, time: '上午', location: '租露營車 & 箭鎮 Arrowtown', details: '箭鎮景點: Ayrburn 酒廠、Historic Arrowtown', done: false },
             { day: 5, time: '16:00', location: '瓦納卡 Wanaka', details: '湖邊散策、最孤獨的樹\n入住: Wanaka 湖畔露營車', done: false }
         ]);
         
-        const expenses = ref([]);
+        const expenses = ref([
+            { id: 1, desc: '機票代付', amount: 3500, payer: '小明' },
+            { id: 2, desc: 'Airbnb 預約', amount: 1200, payer: '小華' }
+        ]);
+
+        const expenseForm = ref({ desc: '', amount: null, payer: '小明' });
         const modal = ref({ show: false, isEdit: false, data: {} });
 
         const sortedItinerary = computed(() => {
@@ -161,8 +216,52 @@ createApp({
                 if (!groups[i.day]) groups[i.day] = [];
                 groups[i.day].push(i);
             });
-            return groups; groups;
+            return groups;
         });
+
+        // 分帳邏輯
+        const getPersonalSpent = (name) => expenses.value.filter(e => e.payer === name).reduce((acc, cur) => acc + (cur.amount || 0), 0);
+        const totalExpenses = computed(() => expenses.value.reduce((acc, cur) => acc + (cur.amount || 0), 0));
+
+        const settlements = computed(() => {
+            if (!expenses.value.length) return [];
+            const avg = totalExpenses.value / travelers.value.length;
+            const balances = travelers.value.map(name => ({ name, balance: getPersonalSpent(name) - avg }));
+            
+            let debtors = balances.filter(b => b.balance < -0.1).sort((a,b) => a.balance - b.balance);
+            let creditors = balances.filter(b => b.balance > 0.1).sort((a,b) => b.balance - a.balance);
+            
+            const results = [];
+            debtors = JSON.parse(JSON.stringify(debtors));
+            creditors = JSON.parse(JSON.stringify(creditors));
+
+            let i = 0, j = 0;
+            while(i < debtors.length && j < creditors.length) {
+                const amount = Math.min(Math.abs(debtors[i].balance), creditors[j].balance);
+                if (amount > 0.1) {
+                    results.push({ from: debtors[i].name, to: creditors[j].name, amount });
+                }
+                debtors[i].balance += amount;
+                creditors[j].balance -= amount;
+                if (Math.abs(debtors[i].balance) < 0.1) i++;
+                if (creditors[j].balance < 0.1) j++;
+            }
+            return results;
+        });
+
+        const addExpense = () => {
+            if (!expenseForm.value.desc || !expenseForm.value.amount) return;
+            expenses.value.unshift({
+                id: Date.now(),
+                ...expenseForm.value
+            });
+            expenseForm.value.desc = '';
+            expenseForm.value.amount = null;
+        };
+
+        const deleteExpense = (id) => {
+            expenses.value = expenses.value.filter(e => e.id !== id);
+        };
 
         const openModal = (item) => {
             modal.value.show = true;
@@ -181,8 +280,9 @@ createApp({
         };
 
         return {
-            activeTab, itinerary, expenses, modal,
-            sortedItinerary, openModal, saveItinerary
+            activeTab, itinerary, expenses, modal, travelers, expenseForm,
+            sortedItinerary, totalExpenses, settlements, openModal, saveItinerary,
+            getPersonalSpent, addExpense, deleteExpense
         };
     }
 }).mount('#app');
