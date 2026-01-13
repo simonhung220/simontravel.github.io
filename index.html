@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>紐西蘭旅程規劃 - 深色穩定版</title>
+    <title>紐西蘭旅程規劃 - 完整深色版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <style>
@@ -24,7 +24,7 @@
         <div>
             <h1 class="text-xl font-black text-white tracking-tight">NZ TRIP 2026</h1>
             <p class="text-[10px] text-blue-400 font-bold uppercase tracking-widest">
-                ● 深色質感模式 (Day 1 - Day 5)
+                ● 完整版 (Simon/Rina/Tim/Josephine)
             </p>
         </div>
     </header>
@@ -95,7 +95,7 @@
             <div class="bg-slate-800/50 rounded-3xl p-6 border border-slate-700/50 shadow-sm">
                 <h3 class="font-black text-white mb-4 flex items-center gap-2">
                     <span class="w-1.5 h-4 bg-orange-400 rounded-full"></span>
-                    結算建議
+                    結算建議 (4人平分)
                 </h3>
                 <div v-if="settlements.length" class="space-y-3">
                     <div v-for="(s, idx) in settlements" :key="idx" class="flex items-center justify-between bg-orange-400/10 p-4 rounded-2xl border border-orange-400/20">
@@ -185,41 +185,66 @@ const { createApp, ref, computed } = Vue;
 createApp({
     setup() {
         const activeTab = ref('itinerary');
-        const travelers = ref(['小明', '小華', '小美']); // 可自定義成員
+        const travelers = ref(['Simon', 'Rina', 'Tim', 'Josephine']);
         
         const itinerary = ref([
+            // Day 1-5 (已保留並更新)
             { day: 1, time: '18:40', location: '台北 TPE － 香港 HKG', details: '搭機1: 臺灣桃園國際機場\n20:40 抵達 / 轉機 55 分鐘', done: false },
             { day: 1, time: '21:35', location: '香港 HKG － 雪梨 SYD', details: '搭機2: 香港國際機場\n航程約 9 小時', done: false },
-            { day: 2, time: '08:40', location: '抵達澳洲雪梨 (SYD)', details: '建議 14:30 前回機場', done: false },
-            { day: 2, time: '10:00', location: '雪梨市區遊覽', details: '雪梨大橋、歌劇院、環形碼頭、月神公園', done: false },
+            { day: 2, time: '08:40', location: '抵達澳洲雪梨 (SYD)', details: '建議 14:30 前回機場\n雪梨市區遊覽 (歌劇院、月神公園)', done: false },
             { day: 2, time: '16:15', location: '雪梨 SYD － 皇后鎮 ZQN', details: '搭機3: 前往紐西蘭', done: false },
-            { day: 2, time: '21:15', location: '抵達皇后鎮 Queenstown', details: 'Check-in: Airbnb 湖景小木屋', done: false },
+            { day: 2, time: '21:15', location: '抵達皇后鎮 Queenstown', details: '入住: Airbnb 湖景小木屋', done: false },
             { day: 3, time: '上午', location: '皇后鎮 Queenstown', details: '跳傘或奇異鳥公園\n週六限定: 假日市集', done: false },
             { day: 3, time: '下午', location: 'Skyline 纜車 + Luge 滑車', details: '俯瞰皇后鎮全景', done: false },
             { day: 4, time: '09:00', location: 'High Country 騎馬', details: '格林諾奇渡河與魔戒場景', done: false },
             { day: 4, time: '下午', location: 'Deer Park 鹿園', details: 'Deer Park Heights 餵鹿', done: false },
             { day: 5, time: '上午', location: '租露營車 & 箭鎮 Arrowtown', details: '箭鎮景點: Ayrburn 酒廠、Historic Arrowtown', done: false },
-            { day: 5, time: '16:00', location: '瓦納卡 Wanaka', details: '湖邊散策、最孤獨的樹\n入住: Wanaka 湖畔露營車', done: false }
+            { day: 5, time: '16:00', location: '瓦納卡 Wanaka', details: '湖邊散策、最孤獨的樹\n入住: Wanaka 湖畔露營車', done: false },
+            
+            // Day 6
+            { day: 6, time: '上午', location: '瓦納卡 Roys Peak 健行', details: '健行至 Roys Peak Lookout\n需討論體力分配', done: false },
+            { day: 6, time: '下午', location: '普卡基湖 Lake Pukaki', details: '🚘 車程 2.5hr / 絕美湖景', done: false },
+            { day: 6, time: '下午', location: '庫克山 Hooker Valley Track', details: '健行 (吊橋+冰河)\n或 直升機冰川健行', done: false },
+            
+            // Day 7
+            { day: 7, time: '全天', location: '庫克山 Mt. Cook 深入遊', details: 'Hooker Valley Track 景觀\n追蹤第二座吊橋開放進度', done: false },
+            { day: 7, time: '傍晚', location: '蒂卡波湖 Lake Tekapo', details: '🚘 車程 1.5hr\nTekapo 世界著名觀星小鎮', done: false },
+            
+            // Day 8
+            { day: 8, time: '上午', location: '蒂卡波湖遊覽', details: '牧羊人教堂、鮭魚生魚片', done: false },
+            { day: 8, time: '下午', location: '巨石陣 Castle Hill', details: '🚘 車程 3hr\n天然岩石迷宮、《納尼亞傳奇》取景', done: false },
+            
+            // Day 9
+            { day: 9, time: '上午', location: '前往基督城 Christchurch', details: '🚘 車程 1.5hr\n辦理露營車還車', done: false },
+            { day: 9, time: '下午', location: '基督城市區觀光', details: '植物園、雅芳河撐篙、復古電車\nRiverside Market 河濱市場', done: false },
+            
+            // Day 10+
+            { day: 10, time: '13:30', location: '前往基督城機場', details: '15:50 搭機1 (CHC-BNE)\n或經奧克蘭', done: false },
+            { day: 10, time: '18:00', location: '布里斯本 BNE 中轉', details: '中轉約 4 小時 / 市區逛逛', done: false },
+            { day: 11, time: '09:55', location: '返抵台北 (TPE)', details: '經香港回台\n(另有北島哈比村+螢火蟲洞選項)', done: false }
         ]);
         
         const expenses = ref([
-            { id: 1, desc: '機票代付', amount: 3500, payer: '小明' },
-            { id: 2, desc: 'Airbnb 預約', amount: 1200, payer: '小華' }
+            { id: 1, desc: '租露營車預定', amount: 5000, payer: 'Simon' },
+            { id: 2, desc: 'Airbnb 費用', amount: 2400, payer: 'Rina' }
         ]);
 
-        const expenseForm = ref({ desc: '', amount: null, payer: '小明' });
+        const expenseForm = ref({ desc: '', amount: null, payer: 'Simon' });
         const modal = ref({ show: false, isEdit: false, data: {} });
 
         const sortedItinerary = computed(() => {
             const groups = {};
-            [...itinerary.value].sort((a,b) => a.day - b.day).forEach(i => {
+            [...itinerary.value].sort((a,b) => {
+                if(a.day !== b.day) return a.day - b.day;
+                return a.time.localeCompare(b.time);
+            }).forEach(i => {
                 if (!groups[i.day]) groups[i.day] = [];
                 groups[i.day].push(i);
             });
             return groups;
         });
 
-        // 分帳邏輯
+        // 分帳邏輯 (4人)
         const getPersonalSpent = (name) => expenses.value.filter(e => e.payer === name).reduce((acc, cur) => acc + (cur.amount || 0), 0);
         const totalExpenses = computed(() => expenses.value.reduce((acc, cur) => acc + (cur.amount || 0), 0));
 
