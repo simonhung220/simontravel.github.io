@@ -29,14 +29,22 @@
     <!-- 頂部標題 -->
     <header class="glass-nav sticky top-0 z-40 px-6 py-4 flex justify-between items-center border-b border-slate-800">
         <div>
-            <h1 class="text-xl font-black text-white tracking-tight">NZ TRIP 2026</h1>
+            <h1 class="text-xl font-black text-white tracking-tight flex items-center gap-2">
+                NZ TRIP 2026
+                <button @click="forceInit" class="text-slate-500 hover:text-blue-400 transition" title="強制同步預設行程">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                </button>
+            </h1>
             <p class="text-[10px] text-blue-400 font-bold uppercase tracking-widest flex items-center gap-1">
                 <span v-if="loading" class="w-2 h-2 bg-yellow-400 rounded-full animate-ping"></span>
                 <span v-else class="w-2 h-2 bg-emerald-500 rounded-full"></span>
-                ● {{ loading ? '同步中...' : '雲端已同步' }} (Simon/Rina/Tim/Josephine)
+                ● {{ loading ? '同步中...' : '雲端連線中' }}
             </p>
         </div>
-        <div class="text-[10px] text-slate-500 font-mono">ID: {{ userId.substring(0,6) }}</div>
+        <div class="text-[10px] text-slate-500 font-mono text-right">
+            <div>UID: {{ userId.substring(0,6) }}</div>
+            <div class="text-blue-500/50">v1.1</div>
+        </div>
     </header>
 
     <main class="flex-grow pb-32 px-5 pt-6">
@@ -46,11 +54,17 @@
             <div class="flex justify-between items-end">
                 <div>
                     <h2 class="text-3xl font-black text-white">我們的行程</h2>
-                    <p class="text-slate-400 text-sm">變更將自動同步給所有人</p>
+                    <p class="text-slate-400 text-sm">修改後所有人將同步更新</p>
                 </div>
                 <button @click="openModal(null)" class="w-12 h-12 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl shadow-lg flex items-center justify-center transition">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"/></svg>
                 </button>
+            </div>
+
+            <!-- 讀取中提示 -->
+            <div v-if="itinerary.length === 0 && !loading" class="bg-slate-800/50 rounded-3xl p-10 text-center border border-dashed border-slate-700">
+                <p class="text-slate-500 text-sm mb-4">目前資料庫是空的</p>
+                <button @click="forceInit" class="bg-blue-600 text-white px-6 py-3 rounded-2xl font-bold text-xs uppercase tracking-widest">初始化完整行程</button>
             </div>
 
             <div v-for="(items, day) in sortedItinerary" :key="day" class="space-y-3">
@@ -188,6 +202,29 @@
 <script type="module">
 const { createApp, ref, computed, onMounted } = Vue;
 
+const DEFAULT_ITINERARY = [
+    { id: 1, day: 1, time: '18:40', location: '台北 TPE － 香港 HKG', details: '搭機1: 臺灣桃園國際機場\n20:40 抵達 / 轉機 55 分鐘', done: false },
+    { id: 2, day: 1, time: '21:35', location: '香港 HKG － 雪梨 SYD', details: '搭機2: 航程約 9 小時', done: false },
+    { id: 3, day: 2, time: '08:40', location: '抵達澳洲雪梨 (SYD)', details: '雪梨市區遊覽 / 14:30 回機場', done: false },
+    { id: 4, day: 2, time: '16:15', location: '雪梨 SYD － 皇后鎮 ZQN', details: '搭機3: 前往紐西蘭', done: false },
+    { id: 5, day: 2, time: '21:15', location: '抵達皇后鎮 Queenstown', details: '入住湖景 Airbnb', done: false },
+    { id: 6, day: 3, time: '全天', location: '皇后鎮 Queenstown', details: 'Skyline 纜車 + Luge 滑車', done: false },
+    { id: 7, day: 4, time: '上午', location: '格林諾奇騎馬', details: 'High Country 騎馬體驗', done: false },
+    { id: 8, day: 5, time: '上午', location: '租露營車 & 箭鎮', details: '辦理租車手續並前往箭鎮', done: false },
+    { id: 9, day: 5, time: '下午', location: '抵達瓦納卡 Wanaka', details: '看孤獨的樹，宿湖畔露營車', done: false },
+    { id: 10, day: 6, time: '上午', location: 'Roys Peak 健行', details: 'Roys Peak Lookout 景觀', done: false },
+    { id: 11, day: 6, time: '下午', location: '普卡基湖 Lake Pukaki', details: '🚘 車程 2.5hr / 絕美湖景', done: false },
+    { id: 12, day: 7, time: '全天', location: '庫克山 Mt. Cook', details: 'Hooker Valley Track\n注意吊橋開放進度', done: false },
+    { id: 13, day: 7, time: '傍晚', location: '蒂卡波湖 Lake Tekapo', details: '世界著名觀星小鎮', done: false },
+    { id: 14, day: 8, time: '上午', location: 'Tekapo 景點', details: '牧羊人教堂、鮭魚生魚片', done: false },
+    { id: 15, day: 8, time: '下午', location: '巨石陣 Castle Hill', details: '🚘 車程 3hr / 天然岩石迷宮', done: false },
+    { id: 16, day: 9, time: '上午', location: '基督城還車', details: '露營車還車手續', done: false },
+    { id: 17, day: 9, time: '下午', location: '基督城市區觀光', details: '植物園、雅芳河、河濱市場', done: false },
+    { id: 18, day: 10, time: '13:30', location: '前往基督城機場', details: '搭機返台行程開始', done: false },
+    { id: 19, day: 10, time: '18:00', location: '布里斯本 BNE 中轉', details: '4 小時中轉，市區逛逛', done: false },
+    { id: 20, day: 11, time: '全天', location: '返抵台灣 TPE', details: '結束紐西蘭之旅', done: false }
+];
+
 createApp({
     setup() {
         const activeTab = ref('itinerary');
@@ -200,11 +237,11 @@ createApp({
         const modal = ref({ show: false, isEdit: false, data: {} });
 
         let db, auth;
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'nz-trip-2026-v1';
+        // 使用更穩定的 appId 以免快取問題
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'nz-trip-2026-v1-stable';
 
-        // 初始化 Firebase
         const initFirebase = async () => {
-            const { initializeApp, getFirestore, doc, setDoc, onSnapshot, collection, query, signInAnonymously, getAuth, onAuthStateChanged, signInWithCustomToken } = window.firebaseModules;
+            const { initializeApp, getFirestore, signInAnonymously, getAuth, onAuthStateChanged, signInWithCustomToken } = window.firebaseModules;
             
             const firebaseConfig = JSON.parse(__firebase_config);
             const app = initializeApp(firebaseConfig);
@@ -228,53 +265,43 @@ createApp({
         const startSyncing = () => {
             const { onSnapshot, doc } = window.firebaseModules;
             
-            // 監聽行程
             const itineraryDoc = doc(db, 'artifacts', appId, 'public', 'data', 'itinerary');
             onSnapshot(itineraryDoc, (snapshot) => {
+                loading.value = false;
                 if (snapshot.exists()) {
                     itinerary.value = snapshot.data().items || [];
                 } else {
-                    // 初始化完整預設行程
-                    const defaultItinerary = [
-                        { id: 1, day: 1, time: '18:40', location: '台北 TPE － 香港 HKG', details: '搭機1: 臺灣桃園國際機場\n20:40 抵達 / 轉機 55 分鐘', done: false },
-                        { id: 2, day: 1, time: '21:35', location: '香港 HKG － 雪梨 SYD', details: '搭機2: 航程約 9 小時', done: false },
-                        { id: 3, day: 2, time: '08:40', location: '抵達澳洲雪梨 (SYD)', details: '雪梨市區遊覽 / 14:30 回機場', done: false },
-                        { id: 4, day: 2, time: '16:15', location: '雪梨 SYD － 皇后鎮 ZQN', details: '搭機3: 前往紐西蘭', done: false },
-                        { id: 5, day: 2, time: '21:15', location: '抵達皇后鎮 Queenstown', details: '入住湖景 Airbnb', done: false },
-                        { id: 6, day: 3, time: '全天', location: '皇后鎮 Queenstown', details: 'Skyline 纜車 + Luge 滑車', done: false },
-                        { id: 7, day: 4, time: '上午', location: '格林諾奇騎馬', details: 'High Country 騎馬體驗', done: false },
-                        { id: 8, day: 5, time: '上午', location: '租露營車 & 箭鎮', details: '辦理租車手續並前往箭鎮', done: false },
-                        { id: 9, day: 5, time: '下午', location: '抵達瓦納卡 Wanaka', details: '看孤獨的樹，宿湖畔露營車', done: false },
-                        { id: 10, day: 6, time: '上午', location: 'Roys Peak 健行', details: 'Roys Peak Lookout 景觀', done: false },
-                        { id: 11, day: 6, time: '下午', location: '普卡基湖 Lake Pukaki', details: '🚘 車程 2.5hr / 絕美湖景', done: false },
-                        { id: 12, day: 7, time: '全天', location: '庫克山 Mt. Cook', details: 'Hooker Valley Track\n注意吊橋開放進度', done: false },
-                        { id: 13, day: 7, time: '傍晚', location: '蒂卡波湖 Lake Tekapo', details: '世界著名觀星小鎮', done: false },
-                        { id: 14, day: 8, time: '上午', location: 'Tekapo 景點', details: '牧羊人教堂、鮭魚生魚片', done: false },
-                        { id: 15, day: 8, time: '下午', location: '巨石陣 Castle Hill', details: '🚘 車程 3hr / 天然岩石迷宮', done: false },
-                        { id: 16, day: 9, time: '上午', location: '基督城還車', details: '露營車還車手續', done: false },
-                        { id: 17, day: 9, time: '下午', location: '基督城市區觀光', details: '植物園、雅芳河、河濱市場', done: false },
-                        { id: 18, day: 10, time: '13:30', location: '前往基督城機場', details: '搭機返台行程開始', done: false },
-                        { id: 19, day: 10, time: '18:00', location: '布里斯本 BNE 中轉', details: '4 小時中轉，市區逛逛', done: false },
-                        { id: 20, day: 11, time: '全天', location: '返抵台灣 TPE', details: '結束紐西蘭之旅', done: false }
-                    ];
-                    saveToCloud('itinerary', defaultItinerary);
+                    // 自動初始化
+                    saveToCloud('itinerary', DEFAULT_ITINERARY);
                 }
+            }, (err) => {
+                console.error("Itinerary Sync Error:", err);
                 loading.value = false;
-            }, (err) => console.error("Sync Error:", err));
+            });
 
-            // 監聽支出
             const expensesDoc = doc(db, 'artifacts', appId, 'public', 'data', 'expenses');
             onSnapshot(expensesDoc, (snapshot) => {
                 if (snapshot.exists()) {
                     expenses.value = snapshot.data().items || [];
                 }
-            });
+            }, (err) => console.error("Expense Sync Error:", err));
+        };
+
+        const forceInit = async () => {
+            loading.value = true;
+            await saveToCloud('itinerary', DEFAULT_ITINERARY);
+            await saveToCloud('expenses', []);
+            loading.value = false;
         };
 
         const saveToCloud = async (collectionName, items) => {
             if (!userId.value) return;
             const { doc, setDoc } = window.firebaseModules;
-            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', collectionName), { items });
+            try {
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', collectionName), { items });
+            } catch (e) {
+                console.error("Save failed:", e);
+            }
         };
 
         const sortedItinerary = computed(() => {
@@ -351,7 +378,7 @@ createApp({
         return {
             activeTab, itinerary, expenses, modal, travelers, expenseForm, loading, userId,
             sortedItinerary, totalExpenses, settlements, openModal, saveItinerary,
-            getPersonalSpent, addExpense, deleteExpense, updateItineraryStatus
+            getPersonalSpent, addExpense, deleteExpense, updateItineraryStatus, forceInit
         };
     }
 }).mount('#app');
